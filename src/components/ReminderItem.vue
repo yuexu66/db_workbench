@@ -32,13 +32,13 @@ const typeInfo = computed(() => {
 
 const typeIcon = computed(() => {
   const map = {
-    birthday: 'friends',
+    birthday: 'friends-o',
     subscription: 'video',
-    insurance: 'car',
-    bill: 'balance-list',
-    gift: 'gift',
-    id: 'contact',
-    health: 'medel',
+    insurance: 'logistics',
+    bill: 'balance-list-o',
+    gift: 'gift-o',
+    id: 'idcard',
+    health: 'medal-o',
     other: 'more-o'
   }
   return map[props.reminder.type] || 'more-o'

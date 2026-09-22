@@ -7,7 +7,7 @@
     </div>
     <div class="page-content">
       <div v-if="items.length === 0" class="empty">
-        <van-icon name="clock" size="48" color="#ddd" />
+        <van-icon name="clock-o" size="48" color="#ddd" />
         <div>暂无倒数日</div>
       </div>
       <div v-else class="countdown-list">

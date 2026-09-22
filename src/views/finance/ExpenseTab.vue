@@ -95,7 +95,7 @@
         />
         <EmptyState
           v-if="thisMonthExpenses.length === 0"
-          icon="balance-list"
+          icon="balance-list-o"
           text="本月暂无开支"
         />
       </div>
@@ -193,12 +193,12 @@ const budgetRemain = computed(() => {
 })
 
 const subscriptions = [
-  { name: '爱奇艺', amount: 25, freq: '每月', icon: 'video', color: '#52c41a' },
-  { name: '腾讯视频', amount: 30, freq: '每月', icon: 'video', color: '#f5222d' },
-  { name: '网易云音乐', amount: 15, freq: '每月', icon: 'music', color: '#f5222d' },
-  { name: 'iCloud', amount: 6, freq: '每月', icon: 'cloud', color: '#4A90D9' },
-  { name: '百度网盘', amount: 30, freq: '每月', icon: 'cloud', color: '#1890ff' },
-  { name: '健身房', amount: 200, freq: '每月', icon: 'fire', color: '#fa8c16' }
+  { name: '爱奇艺', amount: 25, freq: '每月', icon: 'video', color: '#10b981' },
+  { name: '腾讯视频', amount: 30, freq: '每月', icon: 'video', color: '#ef4444' },
+  { name: '网易云音乐', amount: 15, freq: '每月', icon: 'music-o', color: '#ef4444' },
+  { name: 'iCloud', amount: 6, freq: '每月', icon: 'cloud', color: '#6366f1' },
+  { name: '百度网盘', amount: 30, freq: '每月', icon: 'cloud', color: '#0ea5e9' },
+  { name: '健身房', amount: 200, freq: '每月', icon: 'fire-o', color: '#f59e0b' }
 ]
 
 const subscriptionYearCost = computed(() => subscriptions.reduce((s, sub) => s + sub.amount * 12, 0))

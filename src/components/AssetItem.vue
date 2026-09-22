@@ -1,7 +1,7 @@
 <template>
   <div class="asset-item" @click="$emit('click', asset)">
     <div class="asset-icon" :style="{ background: typeInfo.color + '20', color: typeInfo.color }">
-      <van-icon name="gold-coin" size="18" />
+      <van-icon name="gold-coin-o" size="18" />
     </div>
     <div class="asset-content">
       <div class="asset-name">{{ asset.name }}</div>

@@ -44,12 +44,16 @@
           v-for="tool in tools"
           :key="tool.path"
           class="tool-card"
-          :style="{ background: tool.bg }"
           @click="$router.push(tool.path)"
         >
-          <van-icon :name="tool.icon" size="24" color="#fff" />
-          <div class="tool-name">{{ tool.name }}</div>
-          <div class="tool-desc">{{ tool.desc }}</div>
+          <div class="tool-icon-circle" :style="{ background: tool.bg, color: tool.accent }">
+            <van-icon :name="tool.icon" size="22" />
+          </div>
+          <div class="tool-info">
+            <div class="tool-name">{{ tool.name }}</div>
+            <div class="tool-desc">{{ tool.desc }}</div>
+          </div>
+          <van-icon name="arrow" size="14" color="#cbd5e1" />
         </div>
       </div>
     </div>
@@ -107,16 +111,16 @@ const maxStreak = computed(() => {
 })
 
 const tools = [
-  { name: '快速便签', desc: '随手记', icon: 'edit', bg: 'linear-gradient(135deg,#fbbf24,#f59e0b)', path: '/tools/notes' },
-  { name: '购物清单', desc: '待买物品', icon: 'shopping-cart-o', bg: 'linear-gradient(135deg,#34d399,#10b981)', path: '/tools/shopping' },
-  { name: '倒数日', desc: '重要日子', icon: 'clock-o', bg: 'linear-gradient(135deg,#818cf8,#6366f1)', path: '/tools/countdown' },
-  { name: '出门清单', desc: '出差旅行', icon: 'logistics', bg: 'linear-gradient(135deg,#a78bfa,#8b5cf6)', path: '/tools/checklist' },
-  { name: '想看清单', desc: '电影书籍', icon: 'star-o', bg: 'linear-gradient(135deg,#f472b6,#ec4899)', path: '/tools/watchlist' },
-  { name: '人情往来', desc: '随礼记录', icon: 'gift-o', bg: 'linear-gradient(135deg,#fb923c,#f97316)', path: '/tools/gifts' },
-  { name: '密码备忘', desc: '账号密码', icon: 'lock', bg: 'linear-gradient(135deg,#94a3b8,#64748b)', path: '/tools/passwords' },
-  { name: '快递追踪', desc: '包裹状态', icon: 'logistics', bg: 'linear-gradient(135deg,#2dd4bf,#14b8a6)', path: '/tools/express' },
-  { name: '报销记录', desc: '工作报销', icon: 'gold-coin-o', bg: 'linear-gradient(135deg,#fbbf24,#d97706)', path: '/tools/reimburse' },
-  { name: '健康提醒', desc: '体检吃药', icon: 'medal-o', bg: 'linear-gradient(135deg,#4ade80,#22c55e)', path: '/tools/health' }
+  { name: '快速便签', desc: '随手记', icon: 'edit', accent: '#f59e0b', bg: '#fffbeb', path: '/tools/notes' },
+  { name: '购物清单', desc: '待买物品', icon: 'shopping-cart-o', accent: '#10b981', bg: '#ecfdf5', path: '/tools/shopping' },
+  { name: '倒数日', desc: '重要日子', icon: 'clock-o', accent: '#6366f1', bg: '#eef2ff', path: '/tools/countdown' },
+  { name: '出门清单', desc: '出差旅行', icon: 'logistics', accent: '#8b5cf6', bg: '#f5f3ff', path: '/tools/checklist' },
+  { name: '想看清单', desc: '电影书籍', icon: 'star-o', accent: '#ec4899', bg: '#fdf2f8', path: '/tools/watchlist' },
+  { name: '人情往来', desc: '随礼记录', icon: 'gift-o', accent: '#f97316', bg: '#fff7ed', path: '/tools/gifts' },
+  { name: '密码备忘', desc: '账号密码', icon: 'lock', accent: '#64748b', bg: '#f8fafc', path: '/tools/passwords' },
+  { name: '快递追踪', desc: '包裹状态', icon: 'logistics', accent: '#14b8a6', bg: '#f0fdfa', path: '/tools/express' },
+  { name: '报销记录', desc: '工作报销', icon: 'gold-coin-o', accent: '#d97706', bg: '#fffbeb', path: '/tools/reimburse' },
+  { name: '健康提醒', desc: '体检吃药', icon: 'medal-o', accent: '#22c55e', bg: '#f0fdf4', path: '/tools/health' }
 ]
 
 const editProfile = () => {
@@ -235,37 +239,59 @@ const clearData = async () => {
 }
 
 .tool-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.03);
 }
 
 .tool-card {
-  border-radius: 14px;
-  padding: 16px;
-  color: #fff;
-  cursor: pointer;
-  min-height: 90px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.tool-card:last-child {
+  border-bottom: none;
 }
 
 .tool-card:active {
-  transform: scale(0.97);
+  background: #f8fafc;
+}
+
+.tool-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tool-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .tool-name {
-  font-size: 15px;
-  font-weight: 600;
-  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e1b4b;
+  margin-bottom: 2px;
 }
 
 .tool-desc {
-  font-size: 11px;
-  opacity: 0.85;
+  font-size: 12px;
+  color: #94a3b8;
 }
 
 .menu-group {

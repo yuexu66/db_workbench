@@ -20,7 +20,7 @@
         </div>
       </div>
       <div v-else class="empty">
-        <van-icon name="shopping-cart" size="48" color="#ddd" />
+        <van-icon name="shopping-cart-o" size="48" color="#ddd" />
         <div>暂无购物清单</div>
       </div>
     </div>

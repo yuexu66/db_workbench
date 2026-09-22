@@ -3,20 +3,20 @@ import { storage } from '@/utils/storage'
 import { today, formatDate } from '@/utils/date'
 
 export const EXPENSE_CATEGORIES = [
-  { key: 'fuel', label: '油费', icon: 'car', color: '#f59e0b' },
-  { key: 'parking', label: '停车', icon: 'parking', color: '#6366f1' },
-  { key: 'carwash', label: '洗车', icon: 'wash', color: '#14b8a6' },
-  { key: 'maintenance', label: '保养', icon: 'wrench', color: '#8b5cf6' },
+  { key: 'fuel', label: '油费', icon: 'fire-o', color: '#f59e0b' },
+  { key: 'parking', label: '停车', icon: 'location-o', color: '#6366f1' },
+  { key: 'carwash', label: '洗车', icon: 'water-o', color: '#14b8a6' },
+  { key: 'maintenance', label: '保养', icon: 'setting-o', color: '#8b5cf6' },
   { key: 'subscription', label: '订阅会员', icon: 'video', color: '#10b981' },
-  { key: 'food', label: '餐饮', icon: 'food', color: '#ef4444' },
-  { key: 'shopping', label: '购物', icon: 'shop', color: '#ec4899' },
+  { key: 'food', label: '餐饮', icon: 'food-o', color: '#ef4444' },
+  { key: 'shopping', label: '购物', icon: 'shopping-cart-o', color: '#ec4899' },
   { key: 'transport', label: '交通', icon: 'bus', color: '#0ea5e9' },
-  { key: 'gift', label: '人情随礼', icon: 'gift', color: '#f97316' },
-  { key: 'rent', label: '房租', icon: 'home', color: '#6366f1' },
+  { key: 'gift', label: '人情随礼', icon: 'gift-o', color: '#f97316' },
+  { key: 'rent', label: '房租', icon: 'home-o', color: '#6366f1' },
   { key: 'utilities', label: '水电燃气', icon: 'lightning', color: '#eab308' },
-  { key: 'medical', label: '医疗', icon: 'health', color: '#14b8a6' },
-  { key: 'entertainment', label: '娱乐', icon: 'game', color: '#a855f7' },
-  { key: 'other', label: '其他', icon: 'more', color: '#94a3b8' }
+  { key: 'medical', label: '医疗', icon: 'description', color: '#14b8a6' },
+  { key: 'entertainment', label: '娱乐', icon: 'smile-o', color: '#a855f7' },
+  { key: 'other', label: '其他', icon: 'ellipsis', color: '#94a3b8' }
 ]
 
 export const useExpensesStore = defineStore('expenses', {

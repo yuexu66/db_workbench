@@ -17,7 +17,7 @@
     </div>
     <div class="page-content">
       <div v-if="items.length === 0" class="empty">
-        <van-icon name="gift" size="48" color="#ddd" />
+        <van-icon name="gift-o" size="48" color="#ddd" />
         <div>暂无记录</div>
       </div>
       <div v-else class="card">

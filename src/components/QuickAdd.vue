@@ -17,11 +17,11 @@
               <span>提醒</span>
             </div>
             <div class="menu-item" @click="add('expense')">
-              <div class="menu-icon orange"><van-icon name="balance-list" size="22" /></div>
+              <div class="menu-icon orange"><van-icon name="balance-list-o" size="22" /></div>
               <span>支出</span>
             </div>
             <div class="menu-item" @click="add('asset')">
-              <div class="menu-icon purple"><van-icon name="gold-coin" size="22" /></div>
+              <div class="menu-icon purple"><van-icon name="gold-coin-o" size="22" /></div>
               <span>持仓</span>
             </div>
           </div>

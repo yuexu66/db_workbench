@@ -78,7 +78,7 @@
         />
         <EmptyState
           v-if="assetsStore.list.length === 0"
-          icon="gold-coin"
+          icon="gold-coin-o"
           text="暂无持仓"
           action-text="添加持仓"
           @action="showAdd = true"

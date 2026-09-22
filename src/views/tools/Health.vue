@@ -7,7 +7,7 @@
     </div>
     <div class="page-content">
       <div v-if="items.length === 0" class="empty">
-        <van-icon name="medel" size="48" color="#ddd" />
+        <van-icon name="medal-o" size="48" color="#ddd" />
         <div>暂无健康提醒</div>
       </div>
       <div v-else class="health-list">
@@ -74,7 +74,7 @@ const showDate = ref(false)
 const form = reactive({ title: '', type: '体检', date: '', repeat: 'yearly', remark: '' })
 
 const typeColor = (t) => ({ 体检: '#13c2c2', 疫苗: '#52c41a', 吃药: '#fa8c16', 复诊: '#722ed1' }[t] || '#13c2c2')
-const typeIcon = (t) => ({ 体检: 'medel', 疫苗: 'shield', 吃药: 'balance-list', 复诊: 'chat' }[t] || 'medel')
+const typeIcon = (t) => ({ 体检: 'medal-o', 疫苗: 'shield-o', 吃药: 'balance-list-o', 复诊: 'chat-o' }[t] || 'medal-o')
 
 const onDate = ({ selectedValues }) => { form.date = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD') }
 

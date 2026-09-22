@@ -9,7 +9,7 @@
     </div>
     <div class="weather-right">
       <div class="weather-city">
-        <van-icon name="location" size="14" />
+        <van-icon name="location-o" size="14" />
         <span>{{ weather.city }}</span>
       </div>
       <div class="weather-advice">{{ weather.advice }}</div>
@@ -28,10 +28,10 @@ const weather = ref({ temp: '--', text: '加载中', city: settings.data.city, a
 
 const weatherIcon = computed(() => {
   const text = weather.value.text
-  if (text.includes('雨')) return 'rain'
-  if (text.includes('雪')) return 'snow'
+  if (text.includes('雨')) return 'water-o'
+  if (text.includes('雪')) return 'fire-o'
   if (text.includes('云') || text.includes('阴')) return 'cloud'
-  return 'sun'
+  return 'fire-o'
 })
 
 const load = async () => {
