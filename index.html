@@ -16,7 +16,20 @@
     <script type="module" src="/src/main.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('./sw.js').then(function (reg) {
+            reg.addEventListener('updatefound', function () {
+              var nw = reg.installing;
+              if (!nw) return;
+              nw.addEventListener('statechange', function () {
+                // 有新 SW 接管且之前已有受控页面（即版本更新），自动刷新一次加载最新资源
+                if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+                  window.location.reload();
+                }
+              });
+            });
+          }).catch(function () {});
+        });
       }
     </script>
   </body>
