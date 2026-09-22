@@ -25,10 +25,12 @@
       <div class="popup">
         <div class="popup-title">添加倒数日</div>
         <van-field v-model="form.title" label="名称" placeholder="如：国庆休假" />
-        <van-field name="targetDate" label="目标日期" is-link @click="showDate = true">
+        <van-field name="targetDate" label="目标日期" is-link @click="openDatePicker">
           <template #input>{{ form.targetDate || '请选择' }}</template>
         </van-field>
-        <van-datetime-picker v-model:show="showDate" type="date" @confirm="onDate" />
+        <van-popup v-model:show="showDate" position="bottom" round>
+          <van-date-picker v-model="currentDate" title="选择日期" @confirm="onDate" @cancel="showDate = false" />
+        </van-popup>
         <div class="popup-actions"><van-button block type="primary" @click="save">保存</van-button></div>
       </div>
     </van-popup>
@@ -43,6 +45,7 @@ import { daysUntil, formatDate } from '@/utils/date'
 const items = ref(storage.get('countdown', []))
 const showAdd = ref(false)
 const showDate = ref(false)
+const currentDate = ref(['2024', '01', '01'])
 const colors = ['linear-gradient(135deg,#69c0ff,#1890ff)', 'linear-gradient(135deg,#95de64,#52c41a)', 'linear-gradient(135deg,#ff9c6e,#fa541c)', 'linear-gradient(135deg,#b37feb,#722ed1)']
 const form = reactive({ title: '', targetDate: '' })
 
@@ -55,7 +58,13 @@ const daysText = (item) => {
   return `已过 ${Math.abs(d)} 天`
 }
 
-const onDate = ({ selectedValues }) => { form.targetDate = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD') }
+const openDatePicker = () => {
+  const d = form.targetDate ? new Date(form.targetDate + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDate.value = true
+}
+
+const onDate = ({ selectedValues }) => { form.targetDate = selectedValues.join('-'); showDate.value = false }
 
 const save = () => {
   if (!form.title.trim() || !form.targetDate) return

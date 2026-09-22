@@ -1,20 +1,15 @@
 /**
  * 在应用首次加载时注入演示数据
- * 仅在 localStorage 为空时写入
+ * 仅在“从未初始化过”时写入一次；用户主动清空数据后不会再次注入
  */
 import { seedDemoData } from './demoData'
 
-export function initDemoData() {
-  // 检查是否已有任何数据，如果完全空白则注入演示数据
-  const hasAnyData = ['pw_tasks', 'pw_reminders', 'pw_expenses', 'pw_assets', 'pw_habit_records']
-    .some(key => {
-      try {
-        const val = localStorage.getItem(key)
-        return val && val !== '[]' && val !== '{}'
-      } catch { return false }
-    })
+const SEEDED_KEY = 'pw_seeded'
 
-  if (!hasAnyData) {
-    seedDemoData()
-  }
+export function initDemoData() {
+  // 已经初始化过（含用户清空数据后），不再灌入演示数据
+  if (localStorage.getItem(SEEDED_KEY) === 'true') return
+
+  seedDemoData()
+  localStorage.setItem(SEEDED_KEY, 'true')
 }

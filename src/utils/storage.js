@@ -26,6 +26,8 @@ export const storage = {
     Object.keys(localStorage)
       .filter(k => k.startsWith(PREFIX))
       .forEach(k => localStorage.removeItem(k))
+    // 保留“已初始化”标记，防止清空后 reload 时被演示数据重新灌入
+    localStorage.setItem(PREFIX + 'seeded', 'true')
   },
 
   exportAll() {

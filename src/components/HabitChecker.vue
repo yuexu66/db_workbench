@@ -1,22 +1,25 @@
 <template>
   <div class="habit-checker">
     <div class="section-title">
-      <span>习惯打卡</span>
-      <span class="streak">本周连续 {{ maxStreak }} 天</span>
+      <span class="title-left">
+        <span class="t">习惯打卡</span>
+        <span class="streak">本周连续 {{ maxStreak }} 天</span>
+      </span>
+      <span class="manage" @click="$router.push('/habits')">管理 ›</span>
     </div>
     <div class="habit-grid">
       <div
         v-for="habit in habits"
         :key="habit.id"
         class="habit-item"
-        :class="{ checked: isChecked(habit.id) }"
-        @click="toggle(habit.id)"
+        :class="{ checked: isDone(habit.id) }"
+        @click="$router.push('/habits')"
       >
-        <div class="habit-circle">
-          <van-icon v-if="isChecked(habit.id)" name="success" size="18" color="#fff" />
-          <span v-else class="habit-initial">{{ habit.name.charAt(0) }}</span>
+        <div class="habit-circle" :style="circleStyle(habit)">
+          <span class="habit-emoji">{{ habit.icon }}</span>
         </div>
         <span class="habit-name">{{ habit.name }}</span>
+        <span class="habit-sub">{{ progressText(habit) }}</span>
       </div>
     </div>
   </div>
@@ -32,8 +35,27 @@ const habitsStore = useHabitsStore()
 
 const habits = computed(() => settings.data.habits)
 
-const isChecked = (id) => habitsStore.isChecked(id)
-const toggle = (id) => habitsStore.toggle(id)
+const isDone = (id) => habitsStore.isDone(id)
+
+const circleStyle = (habit) => {
+  if (habitsStore.isDone(habit.id)) {
+    return { background: `linear-gradient(135deg, ${habit.color}, ${habit.color}cc)` }
+  }
+  return { background: `${habit.color}18` }
+}
+
+const progressText = (habit) => {
+  const rec = habitsStore.getRecord(habit.id)
+  switch (habit.type) {
+    case 'counter':
+    case 'duration':
+      return `${rec.value}/${habit.target}${habit.unit || ''}`
+    case 'choice':
+      return rec.items.length > 0 ? `${rec.items.length}项` : '未记录'
+    default:
+      return rec.done ? '已完成' : '未打卡'
+  }
+}
 
 const maxStreak = computed(() => {
   if (habits.value.length === 0) return 0
@@ -43,28 +65,42 @@ const maxStreak = computed(() => {
 
 <style scoped>
 .habit-checker {
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .section-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+  margin-bottom: 12px;
+}
+
+.title-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.t {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e1b4b;
 }
 
 .streak {
-  font-size: 12px;
+  font-size: 11px;
   color: #10b981;
-  font-weight: 400;
+  font-weight: 500;
+}
+
+.manage {
+  font-size: 12px;
+  color: #6366f1;
 }
 
 .habit-grid {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   overflow-x: auto;
   padding-bottom: 4px;
 }
@@ -73,38 +109,44 @@ const maxStreak = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
+  width: 62px;
   cursor: pointer;
 }
 
 .habit-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #f0f0f0;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.habit-item.checked .habit-circle {
-  background: linear-gradient(135deg, #34d399, #10b981);
+.habit-emoji {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(0.4);
 }
 
-.habit-initial {
-  font-size: 16px;
-  color: #999;
-  font-weight: 500;
+.habit-item.checked .habit-emoji {
+  filter: none;
 }
 
 .habit-name {
-  font-size: 11px;
-  color: #666;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
 }
 
-.habit-item.checked .habit-name {
+.habit-sub {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.habit-item.checked .habit-sub {
   color: #10b981;
 }
 </style>

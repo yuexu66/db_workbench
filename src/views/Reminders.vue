@@ -47,15 +47,9 @@
             </van-radio-group>
           </template>
         </van-field>
-        <van-field name="date" label="日期" is-link @click="showDatePicker = true">
+        <van-field name="date" label="日期" is-link readonly @click="openDatePicker">
           <template #input>{{ form.date || '请选择日期' }}</template>
         </van-field>
-        <van-datetime-picker
-          v-model:show="showDatePicker"
-          type="date"
-          :min-date="minDate"
-          @confirm="onDateConfirm"
-        />
         <van-field name="repeat" label="重复">
           <template #input>
             <van-radio-group v-model="form.repeat" direction="horizontal">
@@ -72,6 +66,17 @@
           <van-button block type="primary" @click="save">保存</van-button>
         </div>
       </div>
+    </van-popup>
+
+    <!-- 日期选择器（Vant4 使用 van-date-picker） -->
+    <van-popup v-model:show="showDatePicker" position="bottom" round>
+      <van-date-picker
+        v-model="currentDate"
+        title="选择日期"
+        :min-date="minDate"
+        @confirm="onDateConfirm"
+        @cancel="showDatePicker = false"
+      />
     </van-popup>
   </div>
 </template>
@@ -92,6 +97,7 @@ const showAdd = ref(false)
 const showDatePicker = ref(false)
 const editing = ref(null)
 const minDate = new Date(2020, 0, 1)
+const currentDate = ref(['2024', '01', '01'])
 
 const types = REMINDER_TYPES
 const allTypes = [{ key: 'all', label: '全部' }, ...REMINDER_TYPES]
@@ -115,8 +121,15 @@ const filteredReminders = computed(() => {
     .sort((a, b) => daysUntil(a.nextDate) - daysUntil(b.nextDate))
 })
 
+const openDatePicker = () => {
+  const d = form.date ? new Date(form.date + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDatePicker.value = true
+}
+
 const onDateConfirm = ({ selectedValues }) => {
-  form.date = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD')
+  form.date = selectedValues.join('-')
+  showDatePicker.value = false
 }
 
 const editReminder = (r) => {

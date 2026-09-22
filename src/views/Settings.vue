@@ -28,17 +28,21 @@
       <div class="group-card">
         <van-field v-model="settings.data.commute.homeAddress" label="家地址" placeholder="请输入" @change="save" />
         <van-field v-model="settings.data.commute.workAddress" label="公司地址" placeholder="请输入" @change="save" />
-        <van-field name="workTime" label="上班时间" is-link @click="showWorkTime = true">
+        <van-field name="workTime" label="上班时间" is-link @click="openWorkTime">
           <template #input>{{ settings.data.commute.workTime }}</template>
         </van-field>
-        <van-field name="offTime" label="下班时间" is-link @click="showOffTime = true">
+        <van-field name="offTime" label="下班时间" is-link @click="openOffTime">
           <template #input>{{ settings.data.commute.offTime }}</template>
         </van-field>
         <van-field v-model.number="settings.data.commute.commuteDuration" label="通勤时长(分)" type="number" @change="save" />
       </div>
 
-      <van-datetime-picker v-model:show="showWorkTime" type="time" @confirm="onWorkTime" />
-      <van-datetime-picker v-model:show="showOffTime" type="time" @confirm="onOffTime" />
+      <van-popup v-model:show="showWorkTime" position="bottom" round>
+        <van-time-picker v-model="workTimeValue" title="上班时间" @confirm="onWorkTime" @cancel="showWorkTime = false" />
+      </van-popup>
+      <van-popup v-model:show="showOffTime" position="bottom" round>
+        <van-time-picker v-model="offTimeValue" title="下班时间" @confirm="onOffTime" @cancel="showOffTime = false" />
+      </van-popup>
 
       <!-- 天气设置 -->
       <div class="group-title">天气设置</div>
@@ -71,37 +75,63 @@
 
 <script setup>
 import { ref } from 'vue'
-import { showConfirmDialog, showToast } from 'vant'
+import { showConfirmDialog, showDialog, showToast } from 'vant'
 import { useSettingsStore } from '@/stores/settings'
 import { storage } from '@/utils/storage'
 
 const settings = useSettingsStore()
 const showWorkTime = ref(false)
 const showOffTime = ref(false)
+const workTimeValue = ref(['09', '00'])
+const offTimeValue = ref(['18', '00'])
 const fileInput = ref(null)
 
 const save = () => {
   settings.update({ ...settings.data })
 }
 
+const openWorkTime = () => {
+  workTimeValue.value = (settings.data.commute.workTime || '09:00').split(':')
+  showWorkTime.value = true
+}
+
+const openOffTime = () => {
+  offTimeValue.value = (settings.data.commute.offTime || '18:00').split(':')
+  showOffTime.value = true
+}
+
 const onWorkTime = ({ selectedValues }) => {
   settings.updateCommute({ workTime: selectedValues.join(':') })
+  showWorkTime.value = false
 }
 
 const onOffTime = ({ selectedValues }) => {
   settings.updateCommute({ offTime: selectedValues.join(':') })
+  showOffTime.value = false
 }
 
-const exportData = () => {
+const exportData = async () => {
   const data = storage.exportAll()
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const json = JSON.stringify(data, null, 2)
+  const filename = `个人工作台备份_${new Date().toISOString().slice(0, 10)}.json`
+  const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `个人工作台备份_${new Date().toISOString().slice(0,10)}.json`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
-  showToast('备份已下载')
+  await showDialog({
+    title: '备份完成',
+    message: `已生成文件：${filename}\n\n文件已保存到浏览器“下载”目录（手机请查看系统下载管理或浏览器下载记录）。`,
+    showCancelButton: true,
+    confirmButtonText: '复制到剪贴板',
+    cancelButtonText: '知道了'
+  }).then(() => {
+    navigator.clipboard?.writeText(json)
+      .then(() => showToast('已复制到剪贴板'))
+      .catch(() => showToast('复制失败，请手动查看下载文件'))
+  }).catch(() => {})
 }
 
 const importData = () => {
@@ -116,6 +146,7 @@ const onFileChange = (e) => {
     try {
       const data = JSON.parse(ev.target.result)
       storage.importAll(data)
+      localStorage.setItem('pw_seeded', 'true')
       showToast('恢复成功')
       setTimeout(() => location.reload(), 1000)
     } catch {
@@ -132,7 +163,8 @@ const clearData = async () => {
       message: '所有数据将被删除且无法恢复，确定继续吗？'
     })
     storage.clear()
-    location.reload()
+    showToast('已清空')
+    setTimeout(() => location.reload(), 600)
   } catch {}
 }
 </script>

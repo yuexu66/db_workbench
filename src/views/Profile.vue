@@ -77,6 +77,11 @@
         <span class="menu-text">数据备份</span>
         <van-icon name="arrow" size="14" color="#cbd5e1" />
       </div>
+      <div class="menu-card" @click="importData">
+        <div class="menu-icon blue"><van-icon name="upgrade" size="20" /></div>
+        <span class="menu-text">恢复数据</span>
+        <van-icon name="arrow" size="14" color="#cbd5e1" />
+      </div>
       <div class="menu-card" @click="clearData">
         <div class="menu-icon red"><van-icon name="delete-o" size="20" /></div>
         <span class="menu-text">清空数据</span>
@@ -84,13 +89,15 @@
       </div>
     </div>
 
+    <input ref="fileInput" type="file" accept=".json" style="display:none" @change="onFileChange" />
+
     <div class="version">个人工作台 v1.0.0</div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { showConfirmDialog, showToast } from 'vant'
+import { computed, ref } from 'vue'
+import { showConfirmDialog, showDialog, showToast } from 'vant'
 import { useSettingsStore } from '@/stores/settings'
 import { useTasksStore } from '@/stores/tasks'
 import { useRemindersStore } from '@/stores/reminders'
@@ -127,26 +134,66 @@ const editProfile = () => {
   showToast('编辑资料功能开发中')
 }
 
-const exportData = () => {
+const fileInput = ref(null)
+
+const exportData = async () => {
   const data = storage.exportAll()
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const json = JSON.stringify(data, null, 2)
+  const filename = `个人工作台备份_${new Date().toISOString().slice(0, 10)}.json`
+  const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `个人工作台备份_${new Date().toISOString().slice(0,10)}.json`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
-  showToast('备份已下载')
+  await showDialog({
+    title: '备份完成',
+    message: `已生成文件：${filename}\n\n文件已保存到浏览器“下载”目录（手机请查看系统下载管理或浏览器下载记录）。\n也可点“复制”将备份内容存到剪贴板，自行粘贴保存。`,
+    showCancelButton: true,
+    confirmButtonText: '复制到剪贴板',
+    cancelButtonText: '知道了'
+  }).then(() => {
+    navigator.clipboard?.writeText(json)
+      .then(() => showToast('已复制到剪贴板'))
+      .catch(() => showToast('复制失败，请手动查看下载文件'))
+  }).catch(() => {})
+}
+
+const importData = () => {
+  fileInput.value.click()
+}
+
+const onFileChange = (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result)
+      storage.importAll(data)
+      localStorage.setItem('pw_seeded', 'true')
+      showToast('恢复成功')
+      setTimeout(() => location.reload(), 1000)
+    } catch {
+      showToast('文件格式错误')
+    }
+  }
+  reader.readAsText(file)
+  e.target.value = ''
 }
 
 const clearData = async () => {
   try {
     await showConfirmDialog({
       title: '确认清空',
-      message: '所有数据将被删除且无法恢复，确定继续吗？'
+      message: '所有数据将被删除且无法恢复，确定继续吗？',
+      confirmButtonText: '确认清空',
+      confirmButtonColor: '#ef4444'
     })
     storage.clear()
-    location.reload()
+    showToast('已清空')
+    setTimeout(() => location.reload(), 600)
   } catch {}
 }
 </script>

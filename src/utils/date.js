@@ -1,3 +1,5 @@
+const WEEKDAYS_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
 export function formatDate(date, fmt = 'YYYY-MM-DD') {
   const d = new Date(date)
   const year = d.getFullYear()
@@ -5,12 +7,24 @@ export function formatDate(date, fmt = 'YYYY-MM-DD') {
   const day = String(d.getDate()).padStart(2, '0')
   const hours = String(d.getHours()).padStart(2, '0')
   const minutes = String(d.getMinutes()).padStart(2, '0')
+  const weekday = WEEKDAYS_CN[d.getDay()]
   return fmt
     .replace('YYYY', year)
     .replace('MM', month)
     .replace('DD', day)
     .replace('HH', hours)
     .replace('mm', minutes)
+    // 中文令牌：先替换长令牌再替换短令牌，避免被 MM/DD 影响
+    .replace('dddd', weekday)
+    .replace('ddd', weekday.replace('周', '星期'))
+    .replace(/(^|[^A-Za-z])M([^M]|$)/g, (_, p, n) => p + (d.getMonth() + 1) + n)
+    .replace(/(^|[^A-Za-z])D([^D]|$)/g, (_, p, n) => p + d.getDate() + n)
+}
+
+// 返回如 "9月22日 周二" 的中文日期
+export function formatCNDate(date = new Date()) {
+  const d = new Date(date)
+  return `${d.getMonth() + 1}月${d.getDate()}日 ${WEEKDAYS_CN[d.getDay()]}`
 }
 
 export function today() {

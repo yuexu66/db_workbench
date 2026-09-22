@@ -38,7 +38,7 @@
           <van-icon name="balance-o" size="22" />
         </div>
       </div>
-      <div class="overview-card card-habit">
+      <div class="overview-card card-habit" @click="$router.push('/habits')">
         <div class="overview-content">
           <div class="overview-num">{{ habitsStore.todayCompletedCount }}/{{ settings.data.habits.length }}</div>
           <div class="overview-label">习惯打卡</div>
@@ -124,7 +124,7 @@ import { useTasksStore } from '@/stores/tasks'
 import { useRemindersStore, REMINDER_TYPES } from '@/stores/reminders'
 import { useExpensesStore } from '@/stores/expenses'
 import { useHabitsStore } from '@/stores/habits'
-import { getGreeting, formatDate, formatMoney, getNextOccurrence, countdownText } from '@/utils/date'
+import { getGreeting, formatCNDate, formatMoney, getNextOccurrence, countdownText } from '@/utils/date'
 import WeatherCard from '@/components/WeatherCard.vue'
 import DailyQuote from '@/components/DailyQuote.vue'
 import CommuteBar from '@/components/CommuteBar.vue'
@@ -138,7 +138,7 @@ const expensesStore = useExpensesStore()
 const habitsStore = useHabitsStore()
 
 const greeting = computed(() => getGreeting())
-const todayStr = computed(() => formatDate(new Date(), 'M月D日 dddd'))
+const todayStr = computed(() => formatCNDate(new Date()))
 
 const todayTasks = computed(() => tasksStore.todayTasks)
 const upcomingReminders = computed(() => remindersStore.upcoming7days.slice(0, 5))
@@ -165,9 +165,10 @@ const getCountdown = (r) => {
 }
 
 .greeting-text {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: #1e1b4b;
+  letter-spacing: -0.5px;
 }
 
 .greeting-date {
@@ -184,13 +185,14 @@ const getCountdown = (r) => {
 }
 
 .overview-card {
-  border-radius: 14px;
-  padding: 14px 12px;
+  border-radius: 18px;
+  padding: 16px 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
 }
 
 .overview-card:active {
@@ -220,9 +222,10 @@ const getCountdown = (r) => {
 }
 
 .overview-num {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   margin-bottom: 4px;
+  letter-spacing: -0.5px;
 }
 
 .overview-label {

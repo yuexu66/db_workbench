@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { storage } from '@/utils/storage'
 import { fetchFundNavs } from '@/utils/fund'
+import { fetchStockQuotes, normalizeStockCode } from '@/utils/stock'
 
 export const ASSET_TYPES = [
   { key: 'fund', label: '基金', color: '#6366f1' },
@@ -38,7 +39,8 @@ export const useAssetsStore = defineStore('assets', {
       })
       return map
     },
-    fundList: (state) => state.list.filter(a => a.type === 'fund' && a.code)
+    fundList: (state) => state.list.filter(a => a.type === 'fund' && a.code),
+    stockList: (state) => state.list.filter(a => a.type === 'stock' && a.code)
   },
   actions: {
     add(asset) {
@@ -74,32 +76,60 @@ export const useAssetsStore = defineStore('assets', {
       this.refreshing = true
       try {
         const funds = this.fundList
-        if (funds.length === 0) {
+        const stocks = this.stockList
+        if (funds.length === 0 && stocks.length === 0) {
           this.refreshing = false
           return { success: true, updated: 0, failed: 0 }
         }
-        const codes = funds.map(f => f.code)
-        const results = await fetchFundNavs(codes)
 
         let updated = 0
         let failed = 0
-        results.forEach(r => {
-          if (r.success && r.data) {
-            const asset = this.list.find(a => a.code === r.code)
-            if (asset) {
-              const newAmount = asset.shares > 0 ? asset.shares * r.data.nav : asset.currentAmount
-              const yesterdayAmount = asset.currentAmount
-              asset.currentNav = r.data.nav
-              asset.currentAmount = newAmount
-              asset.dailyChange = r.data.changePercent
-              asset.dayProfit = newAmount - yesterdayAmount
-              asset.lastUpdated = new Date().toISOString()
-              updated++
+
+        // 基金净值
+        if (funds.length > 0) {
+          const results = await fetchFundNavs(funds.map(f => f.code))
+          results.forEach(r => {
+            if (r.success && r.data) {
+              const asset = this.list.find(a => a.code === r.code && a.type === 'fund')
+              if (asset) {
+                const newAmount = asset.shares > 0 ? asset.shares * r.data.nav : asset.currentAmount
+                const yesterdayAmount = asset.currentAmount
+                asset.currentNav = r.data.nav
+                asset.currentAmount = newAmount
+                asset.dailyChange = r.data.changePercent
+                asset.dayProfit = newAmount - yesterdayAmount
+                asset.lastUpdated = new Date().toISOString()
+                updated++
+              }
+            } else {
+              failed++
             }
-          } else {
-            failed++
-          }
-        })
+          })
+        }
+
+        // 股票行情
+        if (stocks.length > 0) {
+          const results = await fetchStockQuotes(stocks.map(s => s.code))
+          results.forEach(r => {
+            if (r.success && r.data) {
+              const norm = normalizeStockCode(r.code)
+              const asset = this.list.find(a => a.type === 'stock' && normalizeStockCode(a.code) === norm)
+              if (asset) {
+                const newAmount = asset.shares > 0 ? asset.shares * r.data.price : asset.currentAmount
+                const yesterdayAmount = asset.shares > 0 ? asset.shares * r.data.prevClose : asset.currentAmount
+                asset.currentNav = r.data.price
+                asset.currentAmount = newAmount
+                asset.dailyChange = r.data.changePercent
+                asset.dayProfit = newAmount - yesterdayAmount
+                asset.lastUpdated = new Date().toISOString()
+                updated++
+              }
+            } else {
+              failed++
+            }
+          })
+        }
+
         this.lastRefresh = new Date().toISOString()
         storage.set('assets_last_refresh', this.lastRefresh)
         this.save()

@@ -47,10 +47,12 @@
         <van-field v-model="form.name" label="姓名" placeholder="如：李哥" />
         <van-field v-model="form.event" label="事由" placeholder="如：孩子满月酒" />
         <van-field v-model.number="form.amount" label="金额" type="number" placeholder="0.00" />
-        <van-field name="date" label="日期" is-link @click="showDate = true">
+        <van-field name="date" label="日期" is-link @click="openDatePicker">
           <template #input>{{ form.date }}</template>
         </van-field>
-        <van-datetime-picker v-model:show="showDate" type="date" @confirm="onDate" />
+        <van-popup v-model:show="showDate" position="bottom" round>
+          <van-date-picker v-model="currentDate" title="选择日期" @confirm="onDate" @cancel="showDate = false" />
+        </van-popup>
         <div class="popup-actions"><van-button block type="primary" @click="save">保存</van-button></div>
       </div>
     </van-popup>
@@ -65,13 +67,20 @@ import { today, formatDate, formatMoney } from '@/utils/date'
 const items = ref(storage.get('gifts', []))
 const showAdd = ref(false)
 const showDate = ref(false)
+const currentDate = ref(['2024', '01', '01'])
 const form = reactive({ type: 'out', name: '', event: '', amount: null, date: today() })
 
 const currentYear = new Date().getFullYear()
 const totalOut = computed(() => items.value.filter(i => i.type === 'out' && i.date.startsWith(String(currentYear))).reduce((s, i) => s + Number(i.amount), 0))
 const totalIn = computed(() => items.value.filter(i => i.type === 'in' && i.date.startsWith(String(currentYear))).reduce((s, i) => s + Number(i.amount), 0))
 
-const onDate = ({ selectedValues }) => { form.date = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD') }
+const openDatePicker = () => {
+  const d = form.date ? new Date(form.date + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDate.value = true
+}
+
+const onDate = ({ selectedValues }) => { form.date = selectedValues.join('-'); showDate.value = false }
 
 const save = () => {
   if (!form.name.trim() || !form.amount) return

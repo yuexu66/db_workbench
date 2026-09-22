@@ -131,14 +131,12 @@
           </div>
         </div>
         <van-field v-model="form.name" label="名称" placeholder="选填，如：加油-92号" />
-        <van-field name="date" label="日期" is-link @click="showDatePicker = true">
+        <van-field name="date" label="日期" is-link @click="openDatePicker">
           <template #input>{{ form.date }}</template>
         </van-field>
-        <van-datetime-picker
-          v-model:show="showDatePicker"
-          type="date"
-          @confirm="onDateConfirm"
-        />
+        <van-popup v-model:show="showDatePicker" position="bottom" round>
+          <van-date-picker v-model="currentDate" title="选择日期" @confirm="onDateConfirm" @cancel="showDatePicker = false" />
+        </van-popup>
         <div class="popup-actions">
           <van-button v-if="editing" block type="danger" plain @click="deleteExpense" style="margin-bottom:10px">删除</van-button>
           <van-button block type="primary" @click="save">保存</van-button>
@@ -161,6 +159,7 @@ const expensesStore = useExpensesStore()
 
 const showAdd = ref(false)
 const showDatePicker = ref(false)
+const currentDate = ref(['2024', '01', '01'])
 const showMonthPicker = ref(false)
 const editing = ref(null)
 const currentMonth = ref(formatDate(new Date(), 'YYYY年M月'))
@@ -203,8 +202,15 @@ const subscriptions = [
 
 const subscriptionYearCost = computed(() => subscriptions.reduce((s, sub) => s + sub.amount * 12, 0))
 
+const openDatePicker = () => {
+  const d = form.date ? new Date(form.date + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDatePicker.value = true
+}
+
 const onDateConfirm = ({ selectedValues }) => {
-  form.date = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD')
+  form.date = selectedValues.join('-')
+  showDatePicker.value = false
 }
 
 const editExpense = (e) => {

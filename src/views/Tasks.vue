@@ -2,14 +2,17 @@
   <div class="page tasks-page">
     <div class="page-header">
       <div class="page-title">今日任务</div>
-      <van-datetime-picker
-        v-model:show="showDatePicker"
-        type="date"
-        :min-date="minDate"
-        :max-date="maxDate"
-        @confirm="onDateConfirm"
-      />
-      <div class="date-selector" @click="showDatePicker = true">
+      <van-popup v-model:show="showDatePicker" position="bottom" round>
+        <van-date-picker
+          v-model="currentDate"
+          title="选择日期"
+          :min-date="minDate"
+          :max-date="maxDate"
+          @confirm="onDateConfirm"
+          @cancel="showDatePicker = false"
+        />
+      </van-popup>
+      <div class="date-selector" @click="openDatePicker">
         {{ selectedDate }} <van-icon name="arrow-down" size="12" />
       </div>
     </div>
@@ -127,6 +130,7 @@ const habitsStore = useHabitsStore()
 
 const selectedDate = ref(today())
 const showDatePicker = ref(false)
+const currentDate = ref(['2024', '01', '01'])
 const showAdd = ref(false)
 const editingTask = ref(null)
 const minDate = new Date(2024, 0, 1)
@@ -176,8 +180,15 @@ const selectDate = (date) => {
   selectedDate.value = date
 }
 
+const openDatePicker = () => {
+  const d = selectedDate.value ? new Date(selectedDate.value + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDatePicker.value = true
+}
+
 const onDateConfirm = ({ selectedValues }) => {
-  selectedDate.value = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD')
+  selectedDate.value = selectedValues.join('-')
+  showDatePicker.value = false
 }
 
 const editTask = (task) => {

@@ -44,10 +44,12 @@
             </van-radio-group>
           </template>
         </van-field>
-        <van-field name="date" label="日期" is-link @click="showDate = true">
+        <van-field name="date" label="日期" is-link @click="openDatePicker">
           <template #input>{{ form.date || '请选择' }}</template>
         </van-field>
-        <van-datetime-picker v-model:show="showDate" type="date" @confirm="onDate" />
+        <van-popup v-model:show="showDate" position="bottom" round>
+          <van-date-picker v-model="currentDate" title="选择日期" @confirm="onDate" @cancel="showDate = false" />
+        </van-popup>
         <van-field name="repeat" label="重复">
           <template #input>
             <van-radio-group v-model="form.repeat" direction="horizontal">
@@ -71,12 +73,19 @@ import { today, formatDate } from '@/utils/date'
 const items = ref(storage.get('health', []))
 const showAdd = ref(false)
 const showDate = ref(false)
+const currentDate = ref(['2024', '01', '01'])
 const form = reactive({ title: '', type: '体检', date: '', repeat: 'yearly', remark: '' })
 
 const typeColor = (t) => ({ 体检: '#13c2c2', 疫苗: '#52c41a', 吃药: '#fa8c16', 复诊: '#722ed1' }[t] || '#13c2c2')
 const typeIcon = (t) => ({ 体检: 'medal-o', 疫苗: 'shield-o', 吃药: 'balance-list-o', 复诊: 'chat-o' }[t] || 'medal-o')
 
-const onDate = ({ selectedValues }) => { form.date = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD') }
+const openDatePicker = () => {
+  const d = form.date ? new Date(form.date + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDate.value = true
+}
+
+const onDate = ({ selectedValues }) => { form.date = selectedValues.join('-'); showDate.value = false }
 
 const save = () => {
   if (!form.title.trim() || !form.date) return

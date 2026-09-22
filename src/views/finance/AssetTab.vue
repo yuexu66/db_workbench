@@ -103,14 +103,16 @@
           </template>
         </van-field>
         <van-field v-model="form.name" label="名称" placeholder="如：易方达蓝筹精选混合" />
-        <van-field v-model="form.code" label="基金代码" placeholder="选填，用于自动刷新净值" />
+        <van-field v-model="form.code" :label="codeLabel" :placeholder="codePlaceholder" />
         <van-field v-model.number="form.costAmount" label="买入金额" type="number" placeholder="0.00" />
         <van-field v-model.number="form.shares" label="持有份额" type="number" placeholder="选填" />
         <van-field v-model.number="form.currentAmount" label="当前市值" type="number" placeholder="不填则默认等于买入金额" />
-        <van-field name="buyDate" label="买入日期" is-link @click="showDatePicker = true">
+        <van-field name="buyDate" label="买入日期" is-link @click="openDatePicker">
           <template #input>{{ form.buyDate || '请选择' }}</template>
         </van-field>
-        <van-datetime-picker v-model:show="showDatePicker" type="date" @confirm="onDateConfirm" />
+        <van-popup v-model:show="showDatePicker" position="bottom" round>
+          <van-date-picker v-model="currentDate" title="选择日期" @confirm="onDateConfirm" @cancel="showDatePicker = false" />
+        </van-popup>
         <div class="popup-actions">
           <van-button v-if="editing" block type="danger" plain @click="deleteAsset" style="margin-bottom:10px">删除</van-button>
           <van-button block type="primary" @click="save">保存</van-button>
@@ -134,6 +136,7 @@ const assetsStore = useAssetsStore()
 
 const showAdd = ref(false)
 const showDatePicker = ref(false)
+const currentDate = ref(['2024', '01', '01'])
 const editing = ref(null)
 
 const form = reactive({
@@ -144,6 +147,16 @@ const form = reactive({
   shares: null,
   currentAmount: null,
   buyDate: today()
+})
+
+const codeLabel = computed(() => {
+  if (form.type === 'stock') return '股票代码'
+  if (form.type === 'fund') return '基金代码'
+  return '代码'
+})
+const codePlaceholder = computed(() => {
+  if (form.type === 'stock') return '如 600519，自动识别沪深'
+  return '选填，用于自动刷新净值'
 })
 
 const circumference = 2 * Math.PI * 45
@@ -192,8 +205,15 @@ const refresh = async () => {
   }
 }
 
+const openDatePicker = () => {
+  const d = form.buyDate ? new Date(form.buyDate + 'T00:00:00') : new Date()
+  currentDate.value = [String(d.getFullYear()), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')]
+  showDatePicker.value = true
+}
+
 const onDateConfirm = ({ selectedValues }) => {
-  form.buyDate = formatDate(new Date(selectedValues[0]), 'YYYY-MM-DD')
+  form.buyDate = selectedValues.join('-')
+  showDatePicker.value = false
 }
 
 const editAsset = (a) => {
@@ -238,6 +258,10 @@ const close = () => {
 onMounted(() => {
   if (route.query.add === '1') {
     showAdd.value = true
+  }
+  // 进入自动刷新一次基金/股票行情
+  if ((assetsStore.fundList.length + assetsStore.stockList.length) > 0 && !assetsStore.refreshing) {
+    assetsStore.refreshAll()
   }
 })
 </script>

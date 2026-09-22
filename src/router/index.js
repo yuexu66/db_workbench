@@ -99,6 +99,12 @@ const routes = [
     meta: { title: '健康提醒', showTabBar: false }
   },
   {
+    path: '/habits',
+    name: 'Habits',
+    component: () => import('@/views/Habits.vue'),
+    meta: { title: '习惯打卡', showTabBar: false }
+  },
+  {
     path: '/settings',
     name: 'Settings',
     component: () => import('@/views/Settings.vue'),
